@@ -19,11 +19,22 @@ class SearchService:
     
     def __init__(self):
         """Initialize search service."""
-        self.db_service = get_database_service()
-        self.feature_extractor = get_feature_extractor()
+        self.db_service = None
+        self.feature_extractor = None
         self.product_features: Dict[str, np.ndarray] = {}
         self.products: List[Dict[str, Any]] = []
+        self._initialized = False
+    
+    def _ensure_initialized(self) -> None:
+        """Lazy initialization - only load when needed."""
+        if self._initialized:
+            return
+        
+        logger.info("Lazy loading search service components...")
+        self.db_service = get_database_service()
+        self.feature_extractor = get_feature_extractor()
         self._initialize_product_features()
+        self._initialized = True
     
     def _initialize_product_features(self) -> None:
         """Pre-compute features for all products in database."""
@@ -73,6 +84,9 @@ class SearchService:
             List of SearchResult objects sorted by similarity
         """
         try:
+            # Ensure services are initialized
+            self._ensure_initialized()
+            
             # Use defaults if not provided
             if top_k is None:
                 top_k = config.TOP_K
@@ -112,6 +126,9 @@ class SearchService:
             List of SearchResult objects sorted by similarity
         """
         try:
+            # Ensure services are initialized
+            self._ensure_initialized()
+            
             # Use defaults if not provided
             if top_k is None:
                 top_k = config.TOP_K
@@ -209,6 +226,7 @@ class SearchService:
     def refresh_product_features(self) -> None:
         """Refresh product features from database."""
         logger.info("Refreshing product features...")
+        self._ensure_initialized()
         self.product_features.clear()
         self.products.clear()
         self._initialize_product_features()

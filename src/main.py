@@ -32,12 +32,7 @@ async def lifespan(app: FastAPI):
     logger.info("Starting Image Search API...")
     config.validate()
     logger.info(f"Configuration validated successfully")
-    
-    # Initialize services (lazy loading on first request)
-    from services.search_service import get_search_service
-    logger.info("Initializing search service...")
-    get_search_service()
-    logger.info("Search service initialized successfully")
+    logger.info("Services will be initialized on first request (lazy loading)")
     
     yield
     
