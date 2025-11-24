@@ -6,10 +6,10 @@ from typing import List, Dict, Any, Optional
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 
-from config.settings import config
-from models.product import SearchResult, Product
-from services.database import get_database_service
-from services.feature_extractor import get_feature_extractor
+from ..config.settings import config
+from ..models.product import SearchResult, Product
+from .database import get_database_service
+from .feature_extractor import get_feature_extractor
 
 logger = logging.getLogger(__name__)
 
