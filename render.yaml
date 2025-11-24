@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: image-search-api
+    runtime: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn src.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: MONGO_URI
+        sync: false
+      - key: MONGO_DB_NAME
+        value: test
+      - key: MONGO_COLLECTION
+        value: products
+      - key: MODEL_NAME
+        value: openai/clip-vit-base-patch32
+      - key: DEVICE
+        value: cpu
+      - key: TOP_K
+        value: 10
+      - key: SIMILARITY_THRESHOLD
+        value: 0.5
+      - key: PYTHON_VERSION
+        value: 3.11.0
+    healthCheckPath: /health
