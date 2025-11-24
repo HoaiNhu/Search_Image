@@ -16,9 +16,9 @@ if parent_dir not in sys.path:
 if current_dir not in sys.path:
     sys.path.insert(0, current_dir)
 
-from .config.settings import config
-from .api.routes import router
-from .utils.logger import setup_logger
+from config.settings import config
+from api.routes import router
+from utils.logger import setup_logger
 
 # Setup logging
 setup_logger()
@@ -34,7 +34,7 @@ async def lifespan(app: FastAPI):
     logger.info(f"Configuration validated successfully")
     
     # Initialize services (lazy loading on first request)
-    from .services.search_service import get_search_service
+    from services.search_service import get_search_service
     logger.info("Initializing search service...")
     get_search_service()
     logger.info("Search service initialized successfully")
@@ -87,7 +87,7 @@ if __name__ == "__main__":
     
     logger.info(f"Starting server on {config.HOST}:{config.PORT}")
     uvicorn.run(
-        "src.main:app",
+        "main:app",
         host=config.HOST,
         port=config.PORT,
         reload=True,

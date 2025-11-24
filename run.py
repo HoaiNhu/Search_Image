@@ -5,20 +5,25 @@ Run this file from the root directory: python run.py
 import sys
 import os
 
-# Add project root to Python path
-sys.path.insert(0, os.path.dirname(__file__))
+# Add src directory to Python path
+src_path = os.path.join(os.path.dirname(__file__), 'src')
+sys.path.insert(0, src_path)
 
 if __name__ == "__main__":
     import uvicorn
-    from src.config.settings import config
+    from config.settings import config
     
-    print(f"Starting Image Search API on {config.HOST}:{config.PORT}")
-    print(f"Documentation: http://{config.HOST}:{config.PORT}/docs")
+    # Use PORT from environment variable (Render) or config
+    port = int(os.environ.get('PORT', config.PORT))
+    host = os.environ.get('HOST', '0.0.0.0')
+    
+    print(f"Starting Image Search API on {host}:{port}")
+    print(f"Documentation: http://{host}:{port}/docs")
     
     uvicorn.run(
-        "src.main:app",
-        host=config.HOST,
-        port=config.PORT,
-        reload=True,
+        "main:app",
+        host=host,
+        port=port,
+        reload=False,  # Disable reload in production
         log_level="info"
     )

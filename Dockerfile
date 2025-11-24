@@ -14,7 +14,9 @@ EXPOSE 8001
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
-ENV PYTHONPATH=/app
+
+# Set working directory to src
+WORKDIR /app/src
 
 # Run the application
-CMD ["python", "-m", "src.main"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001"]
