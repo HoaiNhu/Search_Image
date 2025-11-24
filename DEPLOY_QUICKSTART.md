@@ -33,7 +33,7 @@ Instance Type: Free (hoặc Starter $7/tháng)
 **Environment Variables** (click "Add Environment Variable"):
 
 ```
-MONGO_URI = mongodb+srv://hnhu:hoainhu1234@webbuycake.asd8v.mongodb.net/?retryWrites=true&w=majority&appName=WebBuyCake
+MONGO_URI = mongodb+srv://username:password@webbuycake.asd8v.mongodb.net/?retryWrites=true&w=majority&appName=WebBuyCake
 MONGO_DB_NAME = test
 MONGO_COLLECTION = products
 MODEL_NAME = openai/clip-vit-base-patch32
