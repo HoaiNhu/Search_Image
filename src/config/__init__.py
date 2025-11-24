@@ -1,4 +1,3 @@
 """Configuration package initialization."""
-from .settings import config
-
+# Config will be imported directly where needed
 __all__ = ["config"]

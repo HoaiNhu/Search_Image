@@ -1,4 +1,3 @@
 """API package initialization."""
-from .routes import router
-
+# Routes will be imported directly by main.py
 __all__ = ["router"]

@@ -1,5 +1,3 @@
 """Utilities package initialization."""
-from .image_utils import ImageProcessor
-from .logger import setup_logger
-
+# Utils will be imported directly where needed
 __all__ = ["ImageProcessor", "setup_logger"]
