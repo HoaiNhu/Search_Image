@@ -6,8 +6,8 @@ from typing import List, Optional
 from fastapi import APIRouter, File, UploadFile, HTTPException, Query
 from fastapi.responses import JSONResponse
 
-from src.models.product import SearchResult
-from src.services.search_service import get_search_service
+from models.product import SearchResult
+from services.search_service import get_search_service
 
 logger = logging.getLogger(__name__)
 
