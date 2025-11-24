@@ -1,6 +1,15 @@
-# Image Search API
+# 🔍 Image Search API
 
 API tìm kiếm sản phẩm bánh dựa trên hình ảnh sử dụng CLIP model và MongoDB.
+
+[![Python](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.109.0-green.svg)](https://fastapi.tiangolo.com/)
+[![CLIP](https://img.shields.io/badge/Model-CLIP-orange.svg)](https://github.com/openai/CLIP)
+[![MongoDB](https://img.shields.io/badge/Database-MongoDB-green.svg)](https://www.mongodb.com/)
+
+> 🚀 **Quick Deploy to Render**: [DEPLOY_QUICKSTART.md](./DEPLOY_QUICKSTART.md) (5 phút)
+>
+> 📖 **Chi tiết deploy**: [RENDER_DEPLOYMENT_GUIDE.md](./RENDER_DEPLOYMENT_GUIDE.md)
 
 ## 🌟 Tính năng
 
@@ -76,7 +85,7 @@ pip install -r requirements.txt
 File `.env` đã được tạo sẵn với cấu hình mặc định. Bạn có thể chỉnh sửa nếu cần:
 
 ```env
-MONGO_URI=mongodb+srv://hnhu:hoainhu1234@webbuycake.asd8v.mongodb.net/?retryWrites=true&w=majority&appName=WebBuyCake
+MONGO_URI=mongodb+srv://username:password@webbuycake.asd8v.mongodb.net/?retryWrites=true&w=majority&appName=WebBuyCake
 MONGO_DB_NAME=test
 MONGO_COLLECTION=products
 HOST=0.0.0.0
@@ -253,42 +262,42 @@ Tất cả search endpoints trả về format:
 
 ## 🚢 Deployment
 
-### Render.com / Heroku
+### 🌐 Deploy lên Render (Recommended)
 
-1. Thêm file `Procfile`:
+**Quick Start (5 phút):**
 
-```
-web: cd src && uvicorn main:app --host 0.0.0.0 --port $PORT
-```
+```bash
+# 1. Push code
+git push origin main
 
-2. Set environment variables trong platform
-3. Deploy
-
-### Docker
-
-Tạo `Dockerfile`:
-
-```dockerfile
-FROM python:3.11-slim
-
-WORKDIR /app
-
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . .
-
-EXPOSE 8001
-
-CMD ["python", "src/main.py"]
+# 2. Vào Render Dashboard
+# 3. New Web Service → Connect repo
+# 4. Config và Deploy
 ```
 
-Build và run:
+**Xem hướng dẫn chi tiết:**
+
+- [DEPLOY_QUICKSTART.md](./DEPLOY_QUICKSTART.md) - Deploy nhanh trong 5 phút
+- [RENDER_DEPLOYMENT_GUIDE.md](./RENDER_DEPLOYMENT_GUIDE.md) - Hướng dẫn đầy đủ
+
+### 🐳 Docker
+
+Sử dụng Dockerfile có sẵn:
 
 ```bash
 docker build -t image-search-api .
 docker run -p 8001:8001 --env-file .env image-search-api
 ```
+
+### 🔄 Keep-Alive (Free Plan)
+
+Nếu dùng Render Free plan, chạy script để tránh sleep:
+
+```bash
+python keep_alive.py
+```
+
+Hoặc dùng cron service: https://cron-job.org
 
 ## 📈 Monitoring và Logs
 

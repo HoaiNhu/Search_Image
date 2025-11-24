@@ -3,6 +3,7 @@
 ## 🚀 Nhanh Chóng Deploy (5 phút)
 
 ### 1. Push code lên GitHub:
+
 ```bash
 cd c:\Users\Lenovo\STUDY\SEARCH_IMG
 git add .
@@ -11,6 +12,7 @@ git push origin main
 ```
 
 ### 2. Vào Render:
+
 - Truy cập: https://dashboard.render.com
 - Click **"New +"** → **"Web Service"**
 - Connect repo: **HoaiNhu/SEARCH_IMG**
@@ -18,6 +20,7 @@ git push origin main
 ### 3. Cấu hình (1 phút):
 
 **Build & Deploy:**
+
 ```
 Name: image-search-api
 Region: Singapore
@@ -28,6 +31,7 @@ Instance Type: Free (hoặc Starter $7/tháng)
 ```
 
 **Environment Variables** (click "Add Environment Variable"):
+
 ```
 MONGO_URI = mongodb+srv://hnhu:hoainhu1234@webbuycake.asd8v.mongodb.net/?retryWrites=true&w=majority&appName=WebBuyCake
 MONGO_DB_NAME = test
@@ -40,17 +44,21 @@ PYTHON_VERSION = 3.11.0
 ```
 
 ### 4. Deploy:
+
 - Click **"Create Web Service"**
 - Đợi 10-15 phút (tải CLIP model)
 - URL: `https://image-search-api.onrender.com`
 
 ### 5. Test:
+
 ```bash
 curl https://image-search-api.onrender.com/health
 ```
 
 ### 6. Cập nhật Frontend:
+
 File `.env` trong FE-Project_AvocadoCake:
+
 ```env
 REACT_APP_IMAGE_SEARCH_API_URL=https://image-search-api.onrender.com
 ```
