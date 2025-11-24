@@ -11,9 +11,9 @@ from fastapi.middleware.cors import CORSMiddleware
 # Add parent directory to path for absolute imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from config import config
-from api import router
-from utils import setup_logger
+from src.config.settings import config
+from src.api.routes import router
+from src.utils.logger import setup_logger
 
 # Setup logging
 setup_logger()
@@ -29,7 +29,7 @@ async def lifespan(app: FastAPI):
     logger.info(f"Configuration validated successfully")
     
     # Initialize services (lazy loading on first request)
-    from services import get_search_service
+    from src.services.search_service import get_search_service
     logger.info("Initializing search service...")
     get_search_service()
     logger.info("Search service initialized successfully")

@@ -8,8 +8,8 @@ from PIL import Image
 import torch
 from transformers import CLIPProcessor, CLIPModel
 
-from config import config
-from utils import ImageProcessor
+from src.config.settings import config
+from src.utils.image_utils import ImageProcessor
 
 logger = logging.getLogger(__name__)
 

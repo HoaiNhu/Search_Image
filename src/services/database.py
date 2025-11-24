@@ -7,8 +7,8 @@ from pymongo.collection import Collection
 from pymongo.database import Database
 import logging
 
-from config import config
-from models import Product
+from src.config.settings import config
+from src.models.product import Product
 
 logger = logging.getLogger(__name__)
 
