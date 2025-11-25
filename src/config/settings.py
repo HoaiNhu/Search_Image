@@ -22,8 +22,14 @@ class Config:
     PORT: int = int(os.getenv("PORT", 8001))
     
     # Model Configuration
+    # Use smaller model to reduce memory (openai/clip-vit-base-patch32 uses ~150MB vs ~500MB for large)
     MODEL_NAME: str = os.getenv("MODEL_NAME", "openai/clip-vit-base-patch32")
     DEVICE: str = os.getenv("DEVICE", "cpu")
+    
+    # Memory Optimization
+    MAX_BATCH_SIZE: int = int(os.getenv("MAX_BATCH_SIZE", "4"))
+    CACHE_PRODUCTS: bool = os.getenv("CACHE_PRODUCTS", "false").lower() == "true"
+    LAZY_LOAD_MODEL: bool = os.getenv("LAZY_LOAD_MODEL", "true").lower() == "true"
     
     # Search Configuration
     TOP_K: int = int(os.getenv("TOP_K", 10))

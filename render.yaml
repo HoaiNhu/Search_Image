@@ -2,9 +2,9 @@ services:
   - type: web
     name: image-search-api
     runtime: python
-    plan: starter
+    plan: free # Changed from starter - use free tier (512MB RAM)
     buildCommand: pip install -r requirements.txt
-    startCommand: python run.py
+    startCommand: cd src && uvicorn main:app --host 0.0.0.0 --port 8001 --workers 1 --limit-concurrency 10
     envVars:
       - key: MONGO_URI
         sync: false
@@ -16,10 +16,17 @@ services:
         value: openai/clip-vit-base-patch32
       - key: DEVICE
         value: cpu
+      # Memory Optimization - CRITICAL for 512MB free tier
+      - key: MAX_BATCH_SIZE
+        value: 4
+      - key: CACHE_PRODUCTS
+        value: false
+      - key: LAZY_LOAD_MODEL
+        value: true
       - key: TOP_K
         value: 10
       - key: SIMILARITY_THRESHOLD
         value: 0.5
       - key: PYTHON_VERSION
         value: 3.11.0
-    healthCheckPath: /health
+    healthCheckPath: /api/v1/health

@@ -33,7 +33,14 @@ class SearchService:
         logger.info("Lazy loading search service components...")
         self.db_service = get_database_service()
         self.feature_extractor = get_feature_extractor()
-        self._initialize_product_features()
+        
+        # Only pre-compute features if caching is enabled
+        if config.CACHE_PRODUCTS:
+            self._initialize_product_features()
+        else:
+            logger.info("Product feature caching disabled - will compute on-demand")
+            self.products = self.db_service.get_products_with_images()
+        
         self._initialized = True
     
     def _initialize_product_features(self) -> None:
@@ -168,6 +175,10 @@ class SearchService:
             List of SearchResult objects sorted by similarity
         """
         try:
+            # If caching is disabled, compute features on-demand
+            if not config.CACHE_PRODUCTS:
+                return self._calculate_similarities_on_demand(query_features, top_k, threshold)
+            
             if not self.product_features:
                 logger.warning("No product features available for comparison")
                 return []
@@ -221,6 +232,74 @@ class SearchService:
             return results
         except Exception as e:
             logger.error(f"Error calculating similarities: {str(e)}")
+            return []
+    
+    def _calculate_similarities_on_demand(
+        self, 
+        query_features: np.ndarray, 
+        top_k: int,
+        threshold: float
+    ) -> List[SearchResult]:
+        """
+        Calculate similarities by computing product features on-demand.
+        This uses less memory but is slower than pre-computed features.
+        """
+        try:
+            if not self.products:
+                logger.warning("No products available")
+                return []
+            
+            similarities = []
+            
+            # Compute features on-demand for each product
+            for product in self.products:
+                product_id = str(product.get('_id'))
+                image_url = product.get('productImage')
+                
+                if not image_url:
+                    continue
+                
+                # Extract features on-the-fly
+                product_features = self.feature_extractor.extract_features_from_url(image_url)
+                
+                if product_features is None:
+                    continue
+                
+                # Calculate similarity
+                similarity = cosine_similarity(
+                    query_features.reshape(1, -1),
+                    product_features.reshape(1, -1)
+                )[0][0]
+                
+                # Apply threshold
+                if similarity >= threshold:
+                    similarities.append({
+                        'product_id': product_id,
+                        'product_data': product,
+                        'similarity': float(similarity)
+                    })
+            
+            # Sort by similarity (descending)
+            similarities.sort(key=lambda x: x['similarity'], reverse=True)
+            
+            # Take top K
+            top_similarities = similarities[:top_k]
+            
+            # Create SearchResult objects
+            results = []
+            for rank, item in enumerate(top_similarities, start=1):
+                product = Product(**item['product_data'])
+                result = SearchResult(
+                    product=product,
+                    similarity_score=item['similarity'],
+                    rank=rank
+                )
+                results.append(result)
+            
+            logger.info(f"Found {len(results)} similar products using on-demand computation")
+            return results
+        except Exception as e:
+            logger.error(f"Error in on-demand similarity calculation: {str(e)}")
             return []
     
     def refresh_product_features(self) -> None:

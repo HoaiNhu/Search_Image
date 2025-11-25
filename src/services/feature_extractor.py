@@ -24,19 +24,36 @@ class FeatureExtractor:
         self.model: Optional[CLIPModel] = None
         self.processor: Optional[CLIPProcessor] = None
         self.image_processor = ImageProcessor()
-        self._load_model()
+        self._model_loaded = False
+        
+        # Only load immediately if not using lazy loading
+        if not config.LAZY_LOAD_MODEL:
+            self._load_model()
     
     def _load_model(self) -> None:
         """Load CLIP model and processor."""
+        if self._model_loaded:
+            return
+            
         try:
             logger.info(f"Loading CLIP model: {self.model_name}")
-            self.model = CLIPModel.from_pretrained(self.model_name)
+            # Use low_cpu_mem_usage to reduce memory footprint during loading
+            self.model = CLIPModel.from_pretrained(
+                self.model_name,
+                low_cpu_mem_usage=True,
+                torch_dtype=torch.float32  # Use float32 for CPU
+            )
             self.processor = CLIPProcessor.from_pretrained(self.model_name)
             
             # Move model to device
             self.model.to(self.device)
             self.model.eval()
             
+            # Enable memory efficient inference
+            if hasattr(torch, 'inference_mode'):
+                torch.set_grad_enabled(False)
+            
+            self._model_loaded = True
             logger.info(f"CLIP model loaded successfully on {self.device}")
         except Exception as e:
             logger.error(f"Error loading CLIP model: {str(e)}")
@@ -53,19 +70,28 @@ class FeatureExtractor:
             Feature vector as numpy array or None if failed
         """
         try:
+            # Ensure model is loaded
+            if not self._model_loaded:
+                self._load_model()
+            
             # Process image
             inputs = self.processor(images=image, return_tensors="pt")
             inputs = {k: v.to(self.device) for k, v in inputs.items()}
             
-            # Extract features
+            # Extract features with memory efficient inference
             with torch.no_grad():
                 image_features = self.model.get_image_features(**inputs)
             
             # Normalize features
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)
             
-            # Convert to numpy
+            # Convert to numpy and clear GPU memory if needed
             features = image_features.cpu().numpy().flatten()
+            
+            # Clean up tensors
+            del inputs, image_features
+            if self.device != "cpu":
+                torch.cuda.empty_cache()
             
             return features
         except Exception as e:
