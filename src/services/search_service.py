@@ -1,6 +1,7 @@
 """
 Image search service for finding similar products.
 """
+import gc
 import logging
 from typing import List, Dict, Any, Optional
 import numpy as np
@@ -39,7 +40,10 @@ class SearchService:
             self._initialize_product_features()
         else:
             logger.info("Product feature caching disabled - will compute on-demand")
-            self.products = self.db_service.get_products_with_images()
+            # Load limited products to reduce memory
+            max_products = config.MAX_PRODUCTS if hasattr(config, 'MAX_PRODUCTS') else None
+            self.products = self.db_service.get_products_with_images(limit=max_products)
+            logger.info(f"Loaded {len(self.products)} products (limit: {max_products})")
         
         self._initialized = True
     
@@ -47,7 +51,9 @@ class SearchService:
         """Pre-compute features for all products in database."""
         try:
             logger.info("Initializing product features...")
-            self.products = self.db_service.get_products_with_images()
+            # Limit products to reduce memory
+            max_products = config.MAX_PRODUCTS if hasattr(config, 'MAX_PRODUCTS') else None
+            self.products = self.db_service.get_products_with_images(limit=max_products)
             
             if not self.products:
                 logger.warning("No products with images found in database")
@@ -297,6 +303,11 @@ class SearchService:
                 results.append(result)
             
             logger.info(f"Found {len(results)} similar products using on-demand computation")
+            
+            # Force garbage collection if enabled
+            if config.ENABLE_GC:
+                gc.collect()
+            
             return results
         except Exception as e:
             logger.error(f"Error in on-demand similarity calculation: {str(e)}")

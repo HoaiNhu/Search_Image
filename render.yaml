@@ -23,6 +23,10 @@ services:
         value: false
       - key: LAZY_LOAD_MODEL
         value: true
+      - key: MAX_PRODUCTS
+        value: 50
+      - key: ENABLE_GC
+        value: true
       - key: TOP_K
         value: 10
       - key: SIMILARITY_THRESHOLD

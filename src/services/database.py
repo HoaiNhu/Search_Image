@@ -70,18 +70,28 @@ class DatabaseService:
             logger.error(f"Error retrieving product {product_id}: {str(e)}")
             return None
     
-    def get_products_with_images(self) -> List[Dict[str, Any]]:
+    def get_products_with_images(self, limit: Optional[int] = None) -> List[Dict[str, Any]]:
         """
         Retrieve products that have valid image URLs.
         
+        Args:
+            limit: Maximum number of products to retrieve (None for all)
+            
         Returns:
             List of products with images
         """
         try:
-            products = list(self._collection.find({
+            query = {
                 "productImage": {"$exists": True, "$ne": None, "$ne": ""}
-            }))
-            logger.info(f"Retrieved {len(products)} products with images")
+            }
+            
+            if limit:
+                products = list(self._collection.find(query).limit(limit))
+                logger.info(f"Retrieved {len(products)} products with images (limited to {limit})")
+            else:
+                products = list(self._collection.find(query))
+                logger.info(f"Retrieved {len(products)} products with images")
+            
             return products
         except Exception as e:
             logger.error(f"Error retrieving products with images: {str(e)}")

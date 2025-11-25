@@ -30,6 +30,8 @@ class Config:
     MAX_BATCH_SIZE: int = int(os.getenv("MAX_BATCH_SIZE", "4"))
     CACHE_PRODUCTS: bool = os.getenv("CACHE_PRODUCTS", "false").lower() == "true"
     LAZY_LOAD_MODEL: bool = os.getenv("LAZY_LOAD_MODEL", "true").lower() == "true"
+    MAX_PRODUCTS: int = int(os.getenv("MAX_PRODUCTS", "100"))  # Limit products to reduce memory
+    ENABLE_GC: bool = os.getenv("ENABLE_GC", "true").lower() == "true"  # Force garbage collection
     
     # Search Configuration
     TOP_K: int = int(os.getenv("TOP_K", 10))

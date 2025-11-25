@@ -1,6 +1,7 @@
 """
 Image feature extraction service using CLIP model.
 """
+import gc
 import logging
 from typing import Optional, List
 import numpy as np
@@ -92,6 +93,10 @@ class FeatureExtractor:
             del inputs, image_features
             if self.device != "cpu":
                 torch.cuda.empty_cache()
+            
+            # Force garbage collection if enabled
+            if config.ENABLE_GC:
+                gc.collect()
             
             return features
         except Exception as e:

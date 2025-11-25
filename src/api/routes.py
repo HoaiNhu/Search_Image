@@ -152,19 +152,27 @@ async def refresh_product_features() -> JSONResponse:
 async def health_check() -> JSONResponse:
     """
     Health check endpoint.
+    Does NOT initialize search service to avoid loading model.
     
     Returns:
         Service health status
     """
     try:
-        search_service = get_search_service()
+        # Don't initialize search service - just check if API is running
+        # This avoids loading the model during health checks
+        from services.database import get_database_service
+        
+        # Just check database connection
+        db_service = get_database_service()
+        db_healthy = db_service is not None
         
         return JSONResponse(
             status_code=200,
             content={
                 "status": "healthy",
-                "total_products": len(search_service.products),
-                "indexed_products": len(search_service.product_features)
+                "message": "API is running",
+                "database": "connected" if db_healthy else "disconnected",
+                "note": "Model will load on first search request"
             }
         )
     except Exception as e:
@@ -173,6 +181,39 @@ async def health_check() -> JSONResponse:
             status_code=503,
             content={
                 "status": "unhealthy",
+                "error": str(e)
+            }
+        )
+
+
+@router.get("/status")
+async def detailed_status() -> JSONResponse:
+    """
+    Detailed status endpoint - shows if model is loaded.
+    Use this AFTER first search to check system status.
+    
+    Returns:
+        Detailed service status
+    """
+    try:
+        search_service = get_search_service()
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "status": "healthy",
+                "model_loaded": search_service._initialized if hasattr(search_service, '_initialized') else False,
+                "total_products": len(search_service.products),
+                "cached_features": len(search_service.product_features),
+                "cache_enabled": search_service.product_features is not None and len(search_service.product_features) > 0
+            }
+        )
+    except Exception as e:
+        logger.error(f"Error in status check: {str(e)}")
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "error",
                 "error": str(e)
             }
         )
